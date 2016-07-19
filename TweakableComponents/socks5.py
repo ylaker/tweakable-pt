@@ -477,7 +477,7 @@ class SOCKSv5Factory(protocol.Factory):
     """
     A SOCKSv5 Factory.
     """
-    def __init__(self, name, queue):
+    def __init__(self, name):
         self.name = name
 
     def startFactory(self):
