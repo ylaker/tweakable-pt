@@ -17,8 +17,7 @@ def test_code_present():
     """
     Try to import the code files
     """
-    import Queue
-    import Threads
+    import tweakable_pt.TweakableComponents.EventQueue
     assert True
 
 @pytest.mark.event
@@ -26,7 +25,7 @@ def test_create_event():
     """
     Test the creation of an event
     """
-    from Queue import Event
+    from tweakable_pt.TweakableComponents.EventQueue import Event
 
     event = Event(1, 2, "control")
 
@@ -41,7 +40,7 @@ def test_fail_create_event():
     Test the exception raising when the input is malformed
     """
     from pytest import raises
-    from Queue import Event
+    from tweakable_pt.TweakableComponents.EventQueue import Event
 
     with raises(Exception) as excinfo:
         event = Event(1, 2, "error")
@@ -60,7 +59,7 @@ def test_set_payload():
     """
     Test to set the payload for data and control event
     """
-    from Queue import Event
+    from tweakable_pt.TweakableComponents.EventQueue import Event
 
     data_event = Event(1, 2, "data")
     control_event = Event(1, 2, "control")
@@ -88,7 +87,7 @@ def test_fail_set_payload():
     set_payload method from Event
     """
     from pytest import raises
-    from Queue import Event
+    from tweakable_pt.TweakableComponents.EventQueue import Event
 
     data_event = Event(1, 2, "data")
     control_event = Event(1, 2, "control")
@@ -165,7 +164,7 @@ def test_add_queue():
     """
     Test adding an event to the queue
     """
-    from Queue import EventQueue, Event
+    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
 
     q = EventQueue()
     event = Event(1, 2, "data")
@@ -173,14 +172,14 @@ def test_add_queue():
     ans = q.add(event)
 
     assert q.queue == {1: event}
-    assert ans == "Event added"
+    assert ans
 
 @pytest.mark.queue
 def test_get_queue():
     """
     Tests the retrieval of an event from the queue
     """
-    from Queue import EventQueue, Event
+    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
 
     q = EventQueue()
 
@@ -190,10 +189,30 @@ def test_get_queue():
     q.add(event1)
     q.add(event2)
 
-    rsp = q.get(2)
+    rsp = q.get(3,2)
     
     assert q.queue == {1: event1}
     assert rsp == event2
+
+@pytest.mark.queue
+def test_fail_get_queue():
+    """
+    Tests the failure of the retrieval of an event from the queue
+    """
+    from pytest import raises 
+    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+
+    q = EventQueue()
+
+    event1 = Event(1, 2, "data")
+    event2 = Event(1, 3, "control")
+
+    q.add(event1)
+    q.add(event2)
+
+    with raises(Exception) as excinfo:
+        q.get("error", 2)
+    assert "ID does not match destination ID" in str(excinfo.value)
 
 @pytest.mark.queue
 def test_peek_queue():
@@ -201,7 +220,7 @@ def test_peek_queue():
     Tests the peek method of the queue which return 
     an event without removing it from the queue
     """
-    from Queue import EventQueue, Event
+    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
 
     q = EventQueue()
 
@@ -222,7 +241,7 @@ def test_preview_queue():
     Tests the preview method which hide the payload and return
     the queue with payloads replaced by "payload"
     """
-    from Queue import EventQueue, Event
+    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
 
     q = EventQueue()
 

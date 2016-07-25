@@ -7,8 +7,8 @@ from pyptlib.config import EnvError
 
 from twisted.internet import reactor, protocol
 
-import TweakableComponents.Downstream as Downstream
-import TweakableComponents.Upstream as Upstream
+import Connectivity.Downstream as Downstream
+import Connectivity.Upstream as Upstream
 import TweakableComponents.EventQueue as EventQueue
 
 BUFFER_SIZE = 4096

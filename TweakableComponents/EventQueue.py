@@ -31,23 +31,25 @@ class Event:
 
     def set_payload(self, payload):
         #Assert validity of the parameter received
-        assert isinstance(payload, dict)
+        if not (isinstance(payload, dict) or payload == 'payload'):
+            raise Exception("Malformed input payload")
 
-        if self.event_type == "control":
-            if not len(payload) == 2 or \
-                    not (payload['dest_location'] == "local" or  \
-                            payload['dest_location'] == "remote") or \
-                    not isinstance(payload['configuration'], dict):
-                raise Exception("Malformed input payload")
+        if not payload == 'payload':
+            if self.event_type == "control":
+                if not len(payload) == 2 or \
+                        not (payload['dest_location'] == "local" or  \
+                                payload['dest_location'] == "remote") or \
+                        not isinstance(payload['configuration'], dict):
+                    raise Exception("Malformed input payload")
 
-        if self.event_type == "data":
-            if not len(payload) == 5 or \
-                    not isinstance(payload['event_ID'], int) or \
-                    not isinstance(payload['stream_ID'], int) or \
-                    not isinstance(payload['timestamp'], float) or \
-                    not isinstance(payload['valid_for'], int) or \
-                    not isinstance(payload['content'], dict):
-                raise Exception("Malformed input payload")
+            if self.event_type == "data":
+                if not len(payload) == 5 or \
+                        not isinstance(payload['event_ID'], int) or \
+                        not isinstance(payload['stream_ID'], int) or \
+                        not isinstance(payload['timestamp'], float) or \
+                        not isinstance(payload['valid_for'], int) or \
+                        not isinstance(payload['content'], dict):
+                    raise Exception("Malformed input payload")
 
         #Add payload to the event
         self.payload = payload
@@ -60,19 +62,24 @@ class Event:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other): 
+        return self.__dict__ == other.__dict__
+
 #Class defining the queue
 class EventQueue:
     def __init__(self):
         self.queue = {}
         self.index = 0
 
-    #Method removing and returning the last event from the queue
-    def get(self, index):
+    #Method removing and returning an event from the queue
+    def get(self, ID, index):
         event = self.queue[index]
+        if event.dest_ID != ID:
+            raise Exception("ID does not match destination ID")
         del self.queue[index]
         return event
 
-    #Method returning the last event without removing it from the queue
+    #Method returning an event without removing it from the queue
     def peek(self, index):
         event = self.queue[index]
         return event
@@ -81,7 +88,7 @@ class EventQueue:
     def add(self, event):
         self.index = self.index + 1
         self.queue[self.index] = event
-        return "Event added"
+        return True
 
     #Method to test whether the queue is empty
     def is_empty(self):
