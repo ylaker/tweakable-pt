@@ -8,7 +8,7 @@ class BasicComponent(Thread):
     """
     Basic class, more elaborated components will inherit from this class.
     """
-    def __init__(self, ID, queue, dest_endpoint, condition):
+    def __init__(self, ID, dest_endpoint, queue, condition):
         #Assert validity of the parameters received
         if not isinstance(ID, int) or \
                 not isinstance(dest_endpoint, int) or \

@@ -7,6 +7,7 @@ class ServerProtocol(protocol.Protocol):
 
     def dataReceived(self, data):
         print str(data)
+        self.transport.write("Received: "+data)
 
 class ServerFactory(protocol.Factory):
     def buildProtocol(self, addr):

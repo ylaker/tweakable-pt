@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from BaseComponent import BasicComponent
 
@@ -9,16 +10,16 @@ class NetworkComponent(BasicComponent):
     and push data received from the network to the queue wrapped as an event. 
     Used by both upstream and downstream connections to interface with the queue.
     """
-    def __init__(self, ID, queue, dest_endpoint, condition):
+    def __init__(self, ID, dest_endpoint, queue, condition):
         self.connection = None
-        BasicComponent.__init__(self, ID, queue, dest_endpoint, condition)
+        self.conn_condition = threading.Condition()
+        BasicComponent.__init__(self, ID, dest_endpoint, queue, condition)
 
     def data_from_connection(self, data):
         """
         Transform data into payload and send an event to the queue
         """
-        payload = fromkeys(['event_ID', 'stream_ID', 'timestamp', \
-                            'valid_for', 'content'])
+        payload = {}
         payload['event_ID'] = 1
         payload['stream_ID'] = 1
         payload['timestamp'] = 1.0
@@ -27,7 +28,6 @@ class NetworkComponent(BasicComponent):
 
         #Create the event
         event = self.create_event(payload)
-
         #Sending the event
         self.send_event(event)
 
@@ -37,8 +37,10 @@ class NetworkComponent(BasicComponent):
         """
         Process events arriving from the queue
         """
+        self.conn_condition.acquire()
         if not self.connection:
-            raise Exception("Missing connection")
+        	self.conn_condition.wait()
+        self.conn_condition.release()
 
         for key in sorted(self.incomming_events):
             #Retrieve the content from the event 

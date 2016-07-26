@@ -40,7 +40,7 @@ def test_init_component():
     condition = threading.Condition()
 
     #Create the component
-    component = BasicComponent(2, queue, 1, condition)
+    component = BasicComponent(2, 1, queue, condition)
 
     #Start it
     component.start()
@@ -56,7 +56,6 @@ def test_init_component():
 
     #Build the event expected as a result of this process
     out_event = Event(2, 1, "data")
-    out_event.set_payload("payload")
 
     #Assert validity
     for event in queue.preview().values():
@@ -64,6 +63,12 @@ def test_init_component():
 
 @pytest.mark.component
 def test_network_component():
+    """
+    Test to establish a tcp connection with a server, send content retrieved 
+    from an event from the queue and add an event made from data from the network
+    Run by "py.test ComponentTest.py", need to have "python ServerTest.py" 
+    running in another terminal. 
+    """
     import threading
     import time
 
@@ -77,12 +82,15 @@ def test_network_component():
     #Create the queue and one event
     queue = EventQueue()
     event = Event(1, 2, "data")
+    content = "payload"
+    event.set_payload({'event_ID': 1, 'stream_ID': 1, 'timestamp': 1.0, \
+                        'valid_for': 1, 'content': content})
 
     #Create the condition
     condition = threading.Condition()
 
     #Create the component
-    component = NetworkComponent(2, queue, 1, condition)
+    component = NetworkComponent(2, 1, queue, condition)
 
     down_fact = Downstream.DownstreamFactory(component)
     reactor.connectTCP('127.0.0.1', 28000, down_fact)
@@ -96,16 +104,20 @@ def test_network_component():
     condition.notify_all()
     condition.release()
 
+    #Stopping the reactor after 3 seconds, should be enough to send and receive.
+    def stopping():
+    	reactor.stop()
+    reactor.callLater(3, stopping)
+
+    reactor.run()
     
-    #reactor.run()
     #Wait for the component to process this event
     component.join()
 
-    print str(queue)
+    #Assert validity
+    out_event = Event(2, 1, "data")
+    out_event.set_payload({'event_ID': 1, 'stream_ID': 1, 'timestamp': 1.0, \
+                        'valid_for': 1, 'content': "Received: "+content})
 
-    assert False
-
-
-
-
-
+    for event in queue.preview().values():
+        assert event == out_event

@@ -48,7 +48,7 @@ class Event:
                         not isinstance(payload['stream_ID'], int) or \
                         not isinstance(payload['timestamp'], float) or \
                         not isinstance(payload['valid_for'], int) or \
-                        not isinstance(payload['content'], dict):
+                        not isinstance(payload['content'], str):
                     raise Exception("Malformed input payload")
 
         #Add payload to the event
@@ -101,7 +101,6 @@ class EventQueue:
     def preview(self):
         rsp = {}
         for key, value in self.queue.items():
-            value.payload = "payload"
             rsp[key] = value
         return rsp
 

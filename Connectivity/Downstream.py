@@ -49,7 +49,10 @@ class DownstreamProtocol(protocol.Protocol):
         self.network_component = network_component
 
     def connectionMade(self):
+        self.network_component.conn_condition.acquire()
         self.network_component.connection = self
+        self.network_component.conn_condition.notify()
+        self.network_component.conn_condition.release()
     
     def dataReceived(self, data):
         self.network_component.data_from_connection(data)
