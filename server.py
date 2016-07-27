@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import logging
+import threading
 
 from pyptlib.server import ServerTransportPlugin
 from pyptlib.config import EnvError
@@ -9,7 +10,10 @@ from twisted.internet import reactor, protocol
 
 import Connectivity.Downstream as Downstream
 import Connectivity.Upstream as Upstream
-import TweakableComponents.EventQueue as EventQueue
+
+from TweakableComponents.EventQueue import EventQueue
+from TweakableComponents.NetworkComponent import NetworkComponent
+
 
 BUFFER_SIZE = 4096
 
@@ -29,22 +33,28 @@ def launchPT(transport, transport_bindaddr, or_port):
     down_host = '127.0.0.1'
     down_port = 9045
 
-    #Upstream host and port where the traffic will be forwarded. Tor OR port.
     up_host, up_port = or_port
 
-    #Connection manager is created
-    conn_manager = EventQueue.ConnectionManager()
+    #Creating the queue
+    add_event_condition = threading.Condition()
+    queue = EventQueue(add_event_condition)
+
+    upstream_component = NetworkComponent(1, 2, queue)
+    downstream_component = NetworkComponent(2, 1, queue)
+
+    upstream_component.start()
+    downstream_component.start()
 
     #Listenner for downstream connection is launched
     try:
-        down_fact = Downstream.DownstreamFactory(conn_manager)
+        down_fact = Downstream.DownstreamFactory(downstream_component)
         addrport = reactor.listenTCP(down_port, down_fact, interface = down_host)
     except Exception, e:
         logging.warning("Downstream: %s" % e)
 
     #Upstream connection is created
     try:
-        up_fact = Upstream.UpstreamServerFactory(conn_manager)
+        up_fact = Upstream.UpstreamServerFactory(upstream_component)
         reactor.connectTCP(up_host, up_port, up_fact)
     except Exception, e:
         logging.warning("Upstream: %s" %e)

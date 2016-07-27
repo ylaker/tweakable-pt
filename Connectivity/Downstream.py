@@ -46,15 +46,18 @@ from twisted.internet import reactor, protocol
 class DownstreamProtocol(protocol.Protocol):
     """Downstream protocol. Between the two Pluggable Transport"""
     def __init__(self, network_component):
+        logging.debug("Downstream protocol init")
         self.network_component = network_component
 
     def connectionMade(self):
+        logging.debug("Downstream: Connection made")
         self.network_component.conn_condition.acquire()
         self.network_component.connection = self
         self.network_component.conn_condition.notify()
         self.network_component.conn_condition.release()
     
     def dataReceived(self, data):
+        logging.debug("Downstream receive data")
         self.network_component.data_from_connection(data)
     
     def connectionLost(self, reason):

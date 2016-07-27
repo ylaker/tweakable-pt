@@ -232,7 +232,6 @@ class SOCKSv5Protocol(protocol.Protocol):
         """
         Handle client data when authenticating
         """
-
         if self.authMethod in self.AUTH_METHOD_VTABLE:
             self.AUTH_METHOD_VTABLE[self.authMethod](self)
         else:

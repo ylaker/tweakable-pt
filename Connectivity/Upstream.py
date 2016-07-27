@@ -6,47 +6,65 @@ import socks5
 
 #Protocol for the upstream connection, based on a protocol for a socks5 server
 class UpstreamClientProtocol(socks5.SOCKSv5Protocol):
-    def __init__(self, conn_manager, reactor=reactor):
-        self.reactor = reactor
+    def __init__(self, network_component, reactor=reactor):
+        #self.conn_manager = conn_manager
         self.state = 0
-        self.otherConn = None
-        self.conn_manager = conn_manager
+        self.reactor = reactor
+        self.other_conn = None
+        logging.debug("Upstream protocol init")
+        self.network_component = network_component
     
     def processEstablishedData(self, data):
-        if self.conn_manager.is_ready():
-            self.conn_manager.downstream_conn.transport.write(data)
-        else:
-            logging.warning("Connection manager not ready")
+        #if self.conn_manager.is_ready():
+        #    self.conn_manager.downstream_conn.transport.write(data)
+        #else:
+        #    logging.warning("Connection manager not ready")
+        logging.debug("Upstream: processing established data")
+        self.network_component.data_from_connection(data)
     
     def connection_established(self):
-        self.conn_manager.set_upstream_conn(self)
+        #self.conn_manager.set_upstream_conn(self)
+        logging.debug("Upstream: Connection established")
+        self.network_component.conn_condition.acquire()
+        self.network_component.connection = self
+        self.network_component.conn_condition.notify()
+        self.network_component.conn_condition.release()
 
 #Factory for the upstream protocol
 class UpstreamClientFactory(socks5.SOCKSv5Factory):
     """
     A SOCKSv5 Factory.
     """
-    def __init__(self, conn_manager):
-        self.conn_manager = conn_manager
-    
+    def __init__(self, network_component):
+        #self.conn_manager = conn_manager
+        self.network_component = network_component
+
     def startFactory(self):
-        logging.debug("Upstream client: Starting up SOCKS server factory.")
-    
+        logging.debug("UpstreamClientFactory: Starting up SOCKS erver factory.")
+
     def buildProtocol(self, addr):
-        return UpstreamClientProtocol(self.conn_manager, reactor)
+        return UpstreamClientProtocol(self.network_component, reactor)
         
 #Protocol for the upstream connection
 class UpstreamServerProtocol(protocol.Protocol):
     """CLient standard protocol"""
-    def __init__(self, conn_manager):
-        self.conn_manager = conn_manager
+    def __init__(self, network_component):
+        #self.conn_manager = conn_manager
+        logging.debug("Upstream protocol init")
+        self.network_component = network_component
     
     def connectionMade(self):
-        self.conn_manager.set_upstream_conn(self)
+        #self.conn_manager.set_upstream_conn(self)
+        logging.debug("Upstream connection made")
+        self.network_component.conn_condition.acquire()
+        self.network_component.connection = self
+        self.network_component.conn_condition.notify()
+        self.network_component.conn_condition.release()
     
     def dataReceived(self, data):
-        if self.conn_manager.is_ready():
-            self.conn_manager.downstream_conn.transport.write(data)
+        #if self.conn_manager.is_ready():
+        #    self.conn_manager.downstream_conn.transport.write(data)
+        self.network_component.data_from_connection(data)
     
     def connectionLost(self, reason):
         logging.warning("Upstream: Connection lost (%s)." % \
@@ -61,9 +79,10 @@ class UpstreamServerProtocol(protocol.Protocol):
 #Protocol for the upstream protocol
 class UpstreamServerFactory(protocol.ClientFactory):
     """ Server factory """
-    def __init__(self, conn_manager):
-        self.conn_manager = conn_manager
+    def __init__(self, network_component):
+        #self.conn_manager = conn_manager
+        self.network_component = network_component
     
     def buildProtocol(self, addr):
-        return UpstreamServerProtocol(self.conn_manager)
+        return UpstreamServerProtocol(self.network_component)
 

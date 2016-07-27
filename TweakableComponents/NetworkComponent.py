@@ -10,10 +10,11 @@ class NetworkComponent(BasicComponent):
     and push data received from the network to the queue wrapped as an event. 
     Used by both upstream and downstream connections to interface with the queue.
     """
-    def __init__(self, ID, dest_endpoint, queue, condition):
+    def __init__(self, ID, dest_endpoint, queue):
         self.connection = None
         self.conn_condition = threading.Condition()
-        BasicComponent.__init__(self, ID, dest_endpoint, queue, condition)
+
+        BasicComponent.__init__(self, ID, dest_endpoint, queue)
 
     def data_from_connection(self, data):
         """
@@ -37,6 +38,7 @@ class NetworkComponent(BasicComponent):
         """
         Process events arriving from the queue
         """
+        
         self.conn_condition.acquire()
         if not self.connection:
         	self.conn_condition.wait()
@@ -44,10 +46,10 @@ class NetworkComponent(BasicComponent):
 
         for key in sorted(self.incomming_events):
             #Retrieve the content from the event 
-            incomming_payload = self.incomming_events[key].payload
+            incomming_event = self.incomming_events.pop(key)
             #Process details from the payload (not implemented yet)
             #Retrieve the outgoing data
-            outgoing_data = incomming_payload['content']
+            outgoing_data = incomming_event.payload['content']
             #Send the content towards the network
             self.connection.transport.write(outgoing_data)
 

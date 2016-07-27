@@ -31,16 +31,16 @@ def test_init_component():
 
     from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
     from tweakable_pt.TweakableComponents.BaseComponent import BasicComponent
-
-    #Create the queue and one event
-    queue = EventQueue()
-    event = Event(1, 2, "data")
-
+    
     #Create the condition
     condition = threading.Condition()
+    
+    #Create the queue and one event
+    queue = EventQueue(condition)
+    event = Event(1, 2, "data")
 
     #Create the component
-    component = BasicComponent(2, 1, queue, condition)
+    component = BasicComponent(2, 1, queue)
 
     #Start it
     component.start()
@@ -62,7 +62,7 @@ def test_init_component():
         assert event == out_event
 
 @pytest.mark.component
-def test_network_component():
+def test_network_component_downstream():
     """
     Test to establish a tcp connection with a server, send content retrieved 
     from an event from the queue and add an event made from data from the network
@@ -79,18 +79,18 @@ def test_network_component():
     from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
     from tweakable_pt.TweakableComponents.NetworkComponent import NetworkComponent
 
-    #Create the queue and one event
-    queue = EventQueue()
-    event = Event(1, 2, "data")
-    content = "payload"
-    event.set_payload({'event_ID': 1, 'stream_ID': 1, 'timestamp': 1.0, \
-                        'valid_for': 1, 'content': content})
-
     #Create the condition
     condition = threading.Condition()
 
+    #Create the queue and one event
+    queue = EventQueue(condition)
+    event = Event(1, 2, "data")
+    content = "Downstream test"
+    event.set_payload({'event_ID': 1, 'stream_ID': 1, 'timestamp': 1.0, \
+                        'valid_for': 1, 'content': content})
+
     #Create the component
-    component = NetworkComponent(2, 1, queue, condition)
+    component = NetworkComponent(2, 1, queue)
 
     down_fact = Downstream.DownstreamFactory(component)
     reactor.connectTCP('127.0.0.1', 28000, down_fact)

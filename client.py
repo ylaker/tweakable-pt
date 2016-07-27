@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import logging
+import threading
 
 from pyptlib.client import ClientTransportPlugin
 from pyptlib.config import EnvError
@@ -9,7 +10,9 @@ from twisted.internet import reactor, protocol
 
 import Connectivity.Downstream as Downstream
 import Connectivity.Upstream as Upstream
-import TweakableComponents.EventQueue as EventQueue
+
+from TweakableComponents.EventQueue import EventQueue
+from TweakableComponents.NetworkComponent import NetworkComponent
 
 
 class TransportLaunchException(Exception):
@@ -31,19 +34,26 @@ def launchPT(name):
     down_host = '127.0.0.1'
     down_port = 9045
 
-    #Connection manager is created
-    conn_manager = EventQueue.ConnectionManager()
+    #Creating the queue
+    add_event_condition = threading.Condition()
+    queue = EventQueue(add_event_condition)
+
+    upstream_component = NetworkComponent(3, 4, queue)
+    downstream_component = NetworkComponent(4, 3, queue)
+
+    upstream_component.start()
+    downstream_component.start()
 
     #Upstream listenner is launched
     try:
-        up_fact = Upstream.UpstreamClientFactory(conn_manager)
+        up_fact = Upstream.UpstreamClientFactory(upstream_component)
         addrport = reactor.listenTCP(up_port, up_fact, interface=up_host)
     except Exception, e:
         logging.warning("UpstreamInit: %s" %e)
 
     #Downstream connection
     try:
-        down_fact = Downstream.DownstreamFactory(conn_manager)
+        down_fact = Downstream.DownstreamFactory(downstream_component)
         reactor.connectTCP(down_host, down_port, down_fact)
     except Exception, e:
         logging.warning("DownstreamInit: %s" %e)
@@ -54,7 +64,7 @@ def launchPT(name):
 
 def main():
     logging.basicConfig(filename='client.log',filemode='w', level=logging.DEBUG)
-
+    
     transports = ["simple"]
     client = ClientTransportPlugin()
         

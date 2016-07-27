@@ -6,9 +6,9 @@ from EventQueue import Event, EventQueue
 
 class BasicComponent(Thread):
     """
-    Basic class, more elaborated components will inherit from this class.
+    Basic class, more elaborated components will herit from this class.
     """
-    def __init__(self, ID, dest_endpoint, queue, condition):
+    def __init__(self, ID, dest_endpoint, queue):
         #Assert validity of the parameters received
         if not isinstance(ID, int) or \
                 not isinstance(dest_endpoint, int) or \
@@ -19,7 +19,7 @@ class BasicComponent(Thread):
         self.dest_endpoint = dest_endpoint
         self.ID = ID
         self.incomming_events = {}
-        self.condition = condition
+        self.condition = queue.condition
 
         #Init the parent class
         Thread.__init__(self)
@@ -36,10 +36,13 @@ class BasicComponent(Thread):
 
     #Method to send an event to the queue
     def send_event(self, event):
+        self.condition.acquire()
         rsp = self.queue.add(event)
+        self.condition.notify_all()
+        self.condition.release()
         return rsp
 
-    #Method to process an event retreived from the queue
+    #Method to process an event retrieved from the queue
     def process_events(self):
         rsp = True
         for key in sorted(self.incomming_events):
@@ -68,20 +71,20 @@ class BasicComponent(Thread):
 
     #Method used to create the thread for a component
     def run(self):
-
-        self.condition.acquire()
-        #Loop until it get events related to its component ID
-        while self.get_events():
-            #Wait to receive a notification for a change in the queue
-            self.condition.wait()
-        #Events received, processing
-        try:
-            self.process_events()
-        except Exception as e:
-            print str(e)
-            #logging.error(str(e.value))
-        #Release the underlying lock
-        self.condition.release()
+        while True:
+            self.condition.acquire()
+            #Loop until it get events related to its component ID
+            while self.get_events():
+                #Wait to receive a notification for a change in the queue
+                self.condition.wait()
+            #Events received, processing
+            try:
+                self.process_events()
+            except Exception as e:
+                logging.warning(str(e))
+                #logging.error(str(e.value))
+            #Release the underlying lock
+            self.condition.release()
 
 if __name__ == '__main__':
     pass

@@ -67,9 +67,10 @@ class Event:
 
 #Class defining the queue
 class EventQueue:
-    def __init__(self):
+    def __init__(self, add_event_condition):
         self.queue = {}
         self.index = 0
+        self.condition = add_event_condition
 
     #Method removing and returning an event from the queue
     def get(self, ID, index):
@@ -97,7 +98,7 @@ class EventQueue:
             empty = True
         return empty
 
-    #Method to return the queue without details of the payloads
+    #Method to return the queue 
     def preview(self):
         rsp = {}
         for key, value in self.queue.items():
