@@ -1,6 +1,3 @@
-To run tor on the client : "tor -f /etc/tor/torrc-client"
-To run tor on the server : "tor -f /etc/tor/torrc-server"
-
 Config file for tor on the client: /etc/tor/torrc-client
 
 	UseBridges 1
@@ -9,7 +6,7 @@ Config file for tor on the client: /etc/tor/torrc-client
 
 	ExitPolicyRejectPrivate 0
 
-	SOCKSPort 0
+	SOCKSPort 27000
 
 	Bridge simple 127.0.0.1:9151
 
@@ -38,3 +35,11 @@ Config file for tor on the server: /etc/tor/torrc-server
 	PublishServerDescriptor 0
 	ServerTransportListenAddr simple 127.0.0.1:9045
 	ServerTransportPlugin simple exec /home/yoann/MscInfoSec-Project/tweakable_pt/server.py
+
+
+To run tor on the client : "tor -f /etc/tor/torrc-client"
+To run tor on the server : "tor -f /etc/tor/torrc-server"
+
+Then ,on the client, connect an application to the tor listenning socks proxy on the port: 
+
+	SOCKSPort 27000
