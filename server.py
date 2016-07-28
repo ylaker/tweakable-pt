@@ -2,19 +2,15 @@
 
 import logging
 import threading
+import importlib
+import json
 
 from pyptlib.server import ServerTransportPlugin
 from pyptlib.config import EnvError
 
 from twisted.internet import reactor, protocol
 
-import Connectivity.Downstream as Downstream
-import Connectivity.Upstream as Upstream
-
-from TweakableComponents.EventQueue import EventQueue
-from TweakableComponents.NetworkComponent import NetworkComponent
-from TweakableComponents.DummyComponent import DummyComponent
-
+from EventQueue import EventQueue
 
 BUFFER_SIZE = 4096
 
@@ -30,40 +26,58 @@ def launchPT(transport, transport_bindaddr, or_port):
         raise TransportLaunchException('Tried to launch unsupported transport %s'
                  % transport)
 
-    #Downstream host and port where the client will try to connect 
-    down_host = '127.0.0.1'
-    down_port = 9045
-
     up_host, up_port = or_port
+
+    logging.debug(transport_bindaddr)
 
     #Creating the queue
     add_event_condition = threading.Condition()
     queue = EventQueue(add_event_condition)
 
-    upstream_component = NetworkComponent(1, (-1, 2), queue)
-    dummy_component = DummyComponent(2, (1, 3), queue)
-    downstream_component = NetworkComponent(3, (2, -1), queue)
-
-    upstream_component.start()
-    dummy_component.start()
-    downstream_component.start()
-
-    #Listenner for downstream connection is launched
+    logging.debug("logging")
     try:
-        down_fact = Downstream.DownstreamFactory(downstream_component)
-        addrport = reactor.listenTCP(down_port, down_fact, interface = down_host)
-    except Exception, e:
-        logging.warning("Downstream: %s" % e)
+        config = json.load(open('Config/config_server.json'))
+    except Exception as e:
+        logging.warning(str(e))
+    logging.debug(str(config))
 
-    #Upstream connection is created
-    try:
-        up_fact = Upstream.UpstreamServerFactory(upstream_component)
-        reactor.connectTCP(up_host, up_port, up_fact)
-    except Exception, e:
-        logging.warning("Upstream: %s" %e)
+    comps = []
     
+    for comp_config in config['Components']:
+
+        if not isinstance(comp_config['name'], unicode) or \
+                not isinstance(comp_config['module'], unicode) or \
+                not isinstance(comp_config['class'], unicode):
+            raise Exception("Malformed config file")
+
+        try:    
+            mod = importlib.import_module(comp_config['module'])
+            comp_class = getattr(mod, comp_config['class'])
+        except Exception as e:
+            logging.warning(str(e))
+        logging.debug("imported")
+
+        if comp_config['name'] == "Upstream":
+            comp_config['host'] = unicode(up_host)
+            comp_config['port'] = up_port
+
+        try:    
+            comps.append(comp_class(comp_config, "server", queue))
+        except Exception as e:
+            logging.warning(str(e))
+
+        if comp_config['name'] == "Downstream":
+            return_addr = (comp_config['host'], comp_config['port'])
+
+    logging.debug("configured")
+    logging.debug(comps)
+
+    for component in comps:
+        component.start()
+
+    logging.debug("started")
     #Return the host and port where the PT is listenning for downstream connection
-    return (addrport.getHost().host, addrport.getHost().port)
+    return return_addr
     
 def main():
     logging.basicConfig(filename='server.log',filemode='w', level=logging.DEBUG)
@@ -78,7 +92,8 @@ def main():
     #Launch the transports
     for transport, transport_bindaddr in bridge.getBindAddresses().items():
         try:
-            addrport = launchPT(transport, transport_bindaddr, bridge.config.getORPort())
+            addrport = launchPT(transport, transport_bindaddr, \
+                                bridge.config.getORPort())
             bridge.reportMethodSuccess(transport, transport_bindaddr, None)
         except TransportLaunchException:
             logging.warning('Failed to launch' + str(transport))

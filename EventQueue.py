@@ -56,6 +56,9 @@ class EventQueue:
         self.index = 0
         self.condition = add_event_condition
 
+    def create_event(self, ID, endpoint, event_type):
+        return Event(ID, endpoint, event_type)
+
     #Method removing and returning an event from the queue
     def get(self, ID, index):
         event = self.queue[index]

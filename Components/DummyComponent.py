@@ -3,13 +3,14 @@ import threading
 
 from BaseComponent import BasicComponent
 
-
 class DummyComponent(BasicComponent):
     """
     Dummy component. Do nothing, just relay events.
     """
-    def __init__(self, ID, dest_endpoint, queue):
-        BasicComponent.__init__(self, ID, dest_endpoint, queue)
+    def __init__(self, config, mode, queue):
+        dest_endpoint = (config['dest_above'], config['dest_below'])
+
+        BasicComponent.__init__(self, config['ID'], dest_endpoint, mode, queue)
 
     def process_events(self):
         """

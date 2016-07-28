@@ -2,26 +2,27 @@ import logging
 
 from threading import Thread
 
-from EventQueue import Event, EventQueue
-
 class BasicComponent(Thread):
     """
     Basic class, more elaborated components will herit from this class.
     """
-    def __init__(self, ID, dest_endpoint, queue):
+    def __init__(self, ID, dest_endpoint, mode, queue):
         #Assert validity of the parameters received
         endpoint_above, endpoint_below = dest_endpoint
 
+        if not (mode == "server" or mode == "client"):
+            raise Exception("Malformed input")
+
         if not isinstance(ID, int) or \
                 not isinstance(endpoint_below, int) or \
-                not isinstance(endpoint_above, int) or \
-                not isinstance(queue, EventQueue):
+                not isinstance(endpoint_above, int):
             raise Exception("Malformed input")
 
         self.queue = queue
         self.dest_above = endpoint_above
         self.dest_below = endpoint_below
         self.ID = ID
+        self.mode = mode
         self.incomming_events = {}
         self.condition = queue.condition
 
@@ -33,7 +34,7 @@ class BasicComponent(Thread):
         if not (endpoint == self.dest_above or endpoint == self.dest_below):
             raise Exception("Malformed input")
         try:
-            event = Event(self.ID, endpoint, event_type)
+            event = self.queue.create_event(self.ID, endpoint, event_type)
             event.set_payload(payload)
         except Exception as e:
             logging.error(str(e))
