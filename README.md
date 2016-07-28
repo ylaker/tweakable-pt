@@ -38,6 +38,7 @@ Config file for tor on the server: /etc/tor/torrc-server
 
 
 To run tor on the client : "tor -f /etc/tor/torrc-client"
+
 To run tor on the server : "tor -f /etc/tor/torrc-server"
 
 Then ,on the client, connect an application to the tor listenning socks proxy on the port: 
