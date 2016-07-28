@@ -2,6 +2,7 @@ To run tor on the client : "tor -f /etc/tor/torrc-client"
 To run tor on the server : "tor -f /etc/tor/torrc-server"
 
 Config file for tor on the client: /etc/tor/torrc-client
+
 	UseBridges 1
 	Log notice stdout
 	DataDirectory /usr/local/var/lib/tor-client
