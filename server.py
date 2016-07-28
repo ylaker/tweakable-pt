@@ -13,6 +13,7 @@ import Connectivity.Upstream as Upstream
 
 from TweakableComponents.EventQueue import EventQueue
 from TweakableComponents.NetworkComponent import NetworkComponent
+from TweakableComponents.DummyComponent import DummyComponent
 
 
 BUFFER_SIZE = 4096
@@ -39,10 +40,12 @@ def launchPT(transport, transport_bindaddr, or_port):
     add_event_condition = threading.Condition()
     queue = EventQueue(add_event_condition)
 
-    upstream_component = NetworkComponent(1, 2, queue)
-    downstream_component = NetworkComponent(2, 1, queue)
+    upstream_component = NetworkComponent(1, (-1, 2), queue)
+    dummy_component = DummyComponent(2, (1, 3), queue)
+    downstream_component = NetworkComponent(3, (2, -1), queue)
 
     upstream_component.start()
+    dummy_component.start()
     downstream_component.start()
 
     #Listenner for downstream connection is launched

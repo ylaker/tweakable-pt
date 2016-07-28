@@ -27,11 +27,21 @@ class NetworkComponent(BasicComponent):
         payload['valid_for'] = 1
         payload['content'] = data
 
-        #Create the event
-        event = self.create_event(payload)
-        #Sending the event
-        self.send_event(event)
+        if self.dest_above != -1:
+            endpoint = self.dest_above
+        elif self.dest_below != -1:
+            endpoint = self.dest_below
+        else:
+            raise Exception("No valid endpoint")
 
+        #Create the event
+        try:
+            event = self.create_event("data", endpoint, payload)
+            #Sending the event
+            self.send_event(event)
+        except Exception as e:
+            logging.error(str(e))
+            
         return True
 
     def process_events(self):

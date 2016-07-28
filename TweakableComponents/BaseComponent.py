@@ -10,13 +10,17 @@ class BasicComponent(Thread):
     """
     def __init__(self, ID, dest_endpoint, queue):
         #Assert validity of the parameters received
+        endpoint_above, endpoint_below = dest_endpoint
+
         if not isinstance(ID, int) or \
-                not isinstance(dest_endpoint, int) or \
+                not isinstance(endpoint_below, int) or \
+                not isinstance(endpoint_above, int) or \
                 not isinstance(queue, EventQueue):
             raise Exception("Malformed input")
 
         self.queue = queue
-        self.dest_endpoint = dest_endpoint
+        self.dest_above = endpoint_above
+        self.dest_below = endpoint_below
         self.ID = ID
         self.incomming_events = {}
         self.condition = queue.condition
@@ -25,9 +29,11 @@ class BasicComponent(Thread):
         Thread.__init__(self)
 
     #Method to create an event
-    def create_event(self, payload = "payload"):
+    def create_event(self, event_type, endpoint, payload = "payload"):
+        if not (endpoint == self.dest_above or endpoint == self.dest_below):
+            raise Exception("Malformed input")
         try:
-            event = Event(self.ID, self.dest_endpoint, "data")
+            event = Event(self.ID, endpoint, event_type)
             event.set_payload(payload)
         except Exception as e:
             logging.error(str(e))
@@ -42,22 +48,10 @@ class BasicComponent(Thread):
         self.condition.release()
         return rsp
 
-    #Method to process an event retrieved from the queue
+    #Method to process an event retrieved from the queue, 
+    #Must me implemented in child class
     def process_events(self):
-        rsp = True
-        for key in sorted(self.incomming_events):
-            #Process each event 
-            incomming_payload = self.incomming_events[key].payload
-            outgoing_event = self.create_event(incomming_payload)
-            
-            #Gather information about sending each event
-            ret = self.send_event(outgoing_event)
-            rsp = rsp and ret
-
-        #Evaluate if it is succesful
-        if not rsp:
-            raise Exception("Failed to process an event")
-        return rsp
+        pass
 
     #Method to get events, depends on what this component do (peek, get or ...)
     def get_events(self):
@@ -82,7 +76,6 @@ class BasicComponent(Thread):
                 self.process_events()
             except Exception as e:
                 logging.warning(str(e))
-                #logging.error(str(e.value))
             #Release the underlying lock
             self.condition.release()
 

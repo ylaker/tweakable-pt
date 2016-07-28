@@ -13,6 +13,7 @@ import Connectivity.Upstream as Upstream
 
 from TweakableComponents.EventQueue import EventQueue
 from TweakableComponents.NetworkComponent import NetworkComponent
+from TweakableComponents.DummyComponent import DummyComponent
 
 
 class TransportLaunchException(Exception):
@@ -38,10 +39,12 @@ def launchPT(name):
     add_event_condition = threading.Condition()
     queue = EventQueue(add_event_condition)
 
-    upstream_component = NetworkComponent(3, 4, queue)
-    downstream_component = NetworkComponent(4, 3, queue)
+    upstream_component = NetworkComponent(3, (-1, 4), queue)
+    dummy_component = DummyComponent(4, (3, 5), queue)
+    downstream_component = NetworkComponent(5, (4, -1), queue)
 
     upstream_component.start()
+    dummy_component.start()
     downstream_component.start()
 
     #Upstream listenner is launched

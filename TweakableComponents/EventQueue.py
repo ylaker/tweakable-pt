@@ -1,19 +1,3 @@
-#Connection manager used to link and relay data between upstream and 
-#downstream connections.
-class ConnectionManager():
-    def __init__(self):
-        self.downstream_conn = None
-        self.upstream_conn = None
-
-    def set_upstream_conn(self, conn):
-        self.upstream_conn = conn
-
-    def set_downstream_conn(self, conn):
-        self.downstream_conn = conn
-
-    def is_ready(self):
-        return self.downstream_conn and self.upstream_conn
-
 #Class defining the events
 class Event:
     def __init__(self, source_ID, dest_ID, event_type):
@@ -87,6 +71,8 @@ class EventQueue:
 
     #Method to add an event to the queue
     def add(self, event):
+        if event.dest_ID == -1:
+            raise Exception("Bad destination endpoint")
         self.index = self.index + 1
         self.queue[self.index] = event
         return True
