@@ -56,12 +56,12 @@ class UpstreamServerProtocol(protocol.Protocol):
     def connectionLost(self, reason):
         logging.warning("Upstream: Connection lost (%s)." % \
             reason.getErrorMessage())
-        self.close()
+        self.transport.loseConnection()
     
     def connectionFailed(self, reason):
         logging.warning("Upstream: Connection failed (%s)." % \
             reason.getErrorMessage())
-        self.close()
+        self.transport.loseConnection()
 
 #Protocol for the upstream protocol
 class UpstreamServerFactory(protocol.ClientFactory):

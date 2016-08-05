@@ -19,12 +19,12 @@ class DownstreamProtocol(protocol.Protocol):
     def connectionLost(self, reason):
         logging.warning("Downstream: Connection lost (%s)." % \
             reason.getErrorMessage())
-        self.close()
+        self.transport.loseConnection()
 
     def connectionFailed(self, reason):
         logging.warning("Downstream: Connection failed (%s)." % \
             reason.getErrorMessage())
-        self.close()
+        self.transport.loseConnection()
 
 #Factory for the downstream protocol
 class DownstreamFactory(protocol.ClientFactory):
@@ -38,8 +38,9 @@ class DownstreamFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         logging.warning("Downstream: Connection failed - goodbye! (%s)." % \
             reason.getErrorMessage())
+
     
     def clientConnectionLost(self, connector, reason):
         logging.warning("Downstream : Connection lost - goodbye! (%s)." % \
             reason.getErrorMessage())
-        reactor.stop()
+        

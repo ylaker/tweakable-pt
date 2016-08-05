@@ -28,59 +28,67 @@ def launchPT(transport, transport_bindaddr, or_port):
 
     up_host, up_port = or_port
 
-    logging.debug(transport_bindaddr)
-
     #Creating the queue
     add_event_condition = threading.Condition()
     queue = EventQueue(add_event_condition)
 
-    logging.debug("logging")
+    #Loading the config file
     try:
-        config = json.load(open('Config/config_server.json'))
+        config = json.load(open(\
+            '/home/yoann/MscInfoSec-Project/tweakable_pt/Config/config_server.json'))
     except Exception as e:
         logging.warning(str(e))
-    logging.debug(str(config))
+
+    #Assert whether the config structure is as expected
+    if not isinstance(config['Components'], list):
+        raise Exception("Malformed config file")
 
     comps = []
     
-    for comp_config in config['Components']:
+    #Loop over the config for each component
+    for comp_config in config['Components']:    
 
+        #Assert validity of each config
         if not isinstance(comp_config['name'], unicode) or \
                 not isinstance(comp_config['module'], unicode) or \
                 not isinstance(comp_config['class'], unicode):
             raise Exception("Malformed config file")
 
+        #Import the appropriate module and retrieve the class
         try:    
             mod = importlib.import_module(comp_config['module'])
             comp_class = getattr(mod, comp_config['class'])
         except Exception as e:
             logging.warning(str(e))
-        logging.debug("imported")
 
+        #Specific behaviour to add the OR host and OR port retrieved from tor
         if comp_config['name'] == "Upstream":
             comp_config['host'] = unicode(up_host)
             comp_config['port'] = up_port
 
+        #Instantiate the component and add it to the list
         try:    
             comps.append(comp_class(comp_config, "server", queue))
         except Exception as e:
             logging.warning(str(e))
 
+        #Specific behaviour to retrieve the address where it will listen for pt conn
         if comp_config['name'] == "Downstream":
             return_addr = (comp_config['host'], comp_config['port'])
 
-    logging.debug("configured")
-    logging.debug(comps)
-
+    #Starting all the components
     for component in comps:
         component.start()
 
-    logging.debug("started")
     #Return the host and port where the PT is listenning for downstream connection
     return return_addr
     
 def main():
-    logging.basicConfig(filename='server.log',filemode='w', level=logging.DEBUG)
+    logging.basicConfig(\
+        filename='/home/yoann/MscInfoSec-Project/tweakable_pt/server.log', \
+        filemode='w', \
+        level=logging.DEBUG)
+    logging.debug("test")
 
     #Init the pyptlib plugin
     bridge = ServerTransportPlugin()

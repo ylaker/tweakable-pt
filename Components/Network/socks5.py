@@ -151,8 +151,9 @@ class SOCKSv5Protocol(protocol.Protocol):
         self.authMethod = _SOCKS_AUTH_NO_ACCEPTABLE_METHODS
 
     def connectionLost(self, reason):
-        if self.otherConn:
-            self.otherConn.transport.loseConnection()
+        logging.warning("Downstream: Connection lost (%s)." % \
+            reason.getErrorMessage())
+        self.transport.loseConnection()
 
     def dataReceived(self, data):
         if self.state == self.ST_ESTABLISHED:

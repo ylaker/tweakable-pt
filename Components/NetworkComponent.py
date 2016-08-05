@@ -41,14 +41,14 @@ class NetworkComponent(BasicComponent):
                 up_fact = Upstream.UpstreamClientFactory(self)
                 reactor.listenTCP(self.port, up_fact, interface = self.host)
             except Exception, e:
-                logging.warning("UpstreamInit: %s" %e)
+                logging.warning("UpstreamClient: %s" %e)
 
         if self.mode == "server":
             try:
                 up_fact = Upstream.UpstreamServerFactory(self)
                 reactor.connectTCP(self.host, self.port, up_fact)
             except Exception, e:
-                logging.warning("Upstream: %s" %e)
+                logging.warning("UpstreamServer: %s" %e)
 
     def setup_downstream(self):
         if self.mode == "client":
@@ -56,14 +56,14 @@ class NetworkComponent(BasicComponent):
                 down_fact = Downstream.DownstreamFactory(self)
                 reactor.connectTCP(self.host, self.port, down_fact)
             except Exception, e:
-                logging.warning("DownstreamInit: %s" %e)
+                logging.warning("DownstreamClient: %s" %e)
 
         if self.mode == "server":
             try:
                 down_fact = Downstream.DownstreamFactory(self)
-                addrport = reactor.listenTCP(self.port, down_fact, interface = self.host)
+                reactor.listenTCP(self.port, down_fact, interface = self.host)
             except Exception, e:
-                logging.warning("Downstream: %s" % e)
+                logging.warning("DownstreamServer: %s" % e)
 
 
     def data_from_connection(self, data):

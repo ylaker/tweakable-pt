@@ -27,31 +27,47 @@ def launchPT(name):
     add_event_condition = threading.Condition()
     queue = EventQueue(add_event_condition)
 
+    #Loading the config file
     try:
-        config = json.load(open('Config/config_client.json'))
+        config = json.load(open(\
+            '/home/yoann/MscInfoSec-Project/tweakable_pt/Config/config_client.json'))
     except Exception as e:
         logging.warning(str(e))
 
+    #Assert whether the config structure is as expected
     if not isinstance(config['Components'], list):
         raise Exception("Malformed config file")
 
     comps = []
     
+    #Loop over the config for each component
     for comp_config in config['Components']:
 
+        #Assert validity of the config
         if not isinstance(comp_config['name'], unicode) or \
                 not isinstance(comp_config['module'], unicode) or \
                 not isinstance(comp_config['class'], unicode):
             raise Exception("Malformed config file")
 
-        mod = importlib.import_module(comp_config['module'])
-        comp_class = getattr(mod, comp_config['class'])
+        #Import the appropriate module and retrieve the class
+        try:
+            mod = importlib.import_module(comp_config['module'])
+            comp_class = getattr(mod, comp_config['class'])
+        except Exception as e:
+            logging.warning(str(e))
 
-        comps.append(comp_class(comp_config, "client", queue))
+        #Instanciate the component and add it to the list
+        try:
+            comps.append(comp_class(comp_config, "client", queue))
+        except Exception as e:
+            logging.warning(str(e))
 
+        #Specific behaviour to retreive the address where the pt is listenning 
+        #for conn from the tor client 
         if comp_config['name'] == "Upstream":
             return_addr = (comp_config['host'], comp_config['port'])
 
+    #Start all components
     for component in comps:
         component.start()
 
@@ -60,8 +76,11 @@ def launchPT(name):
     
 
 def main():
-    logging.basicConfig(filename='client.log',filemode='w', \
-                        level=logging.DEBUG)
+    logging.basicConfig(\
+        filename='/home/yoann/MscInfoSec-Project/tweakable_pt/client.log', \
+        filemode='w', \
+        level=logging.DEBUG)
+    logging.debug("test")
     
     transports = ["simple"]
     client = ClientTransportPlugin()
