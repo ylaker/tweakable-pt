@@ -4,6 +4,7 @@ import logging
 import threading
 import importlib
 import json
+import os
 
 from pyptlib.server import ServerTransportPlugin
 from pyptlib.config import EnvError
@@ -11,8 +12,6 @@ from pyptlib.config import EnvError
 from twisted.internet import reactor, protocol
 
 from EventQueue import EventQueue
-
-BUFFER_SIZE = 4096
 
 class TransportLaunchException(Exception):
 
@@ -22,11 +21,12 @@ def launchPT(transport, transport_bindaddr, or_port):
     """
     Launch the Puggable Transport
     """
-    if transport != 'simple':
+    if transport != 'twkbl':
         raise TransportLaunchException('Tried to launch unsupported transport %s'
                  % transport)
 
     up_host, up_port = or_port
+    down_host, down_port = transport_bindaddr
 
     #Creating the queue
     add_event_condition = threading.Condition()
@@ -34,8 +34,7 @@ def launchPT(transport, transport_bindaddr, or_port):
 
     #Loading the config file
     try:
-        config = json.load(open(\
-            '/home/yoann/MscInfoSec-Project/tweakable_pt/Config/config_server.json'))
+        config = json.load(open(DIRNAME + '/config/config_server.json'))
     except Exception as e:
         logging.warning(str(e))
 
@@ -66,34 +65,36 @@ def launchPT(transport, transport_bindaddr, or_port):
             comp_config['host'] = unicode(up_host)
             comp_config['port'] = up_port
 
+        #Specific behaviour to add address where the pt will listen for connection
+        if comp_config['name'] == "Downstream":
+            comp_config['host'] = unicode(down_host)
+            comp_config['port'] = down_port
+
         #Instantiate the component and add it to the list
         try:    
             comps.append(comp_class(comp_config, "server", queue))
         except Exception as e:
             logging.warning(str(e))
 
-        #Specific behaviour to retrieve the address where it will listen for pt conn
-        if comp_config['name'] == "Downstream":
-            return_addr = (comp_config['host'], comp_config['port'])
-
     #Starting all the components
     for component in comps:
         component.start()
 
     #Return the host and port where the PT is listenning for downstream connection
-    return return_addr
+    return transport_bindaddr
     
 def main():
     logging.basicConfig(\
-        filename='/home/yoann/MscInfoSec-Project/tweakable_pt/server.log', \
+        filename=DIRNAME + '/log/tweakable_server.log', \
         filemode='w', \
         level=logging.DEBUG)
     logging.debug("test")
 
     #Init the pyptlib plugin
     bridge = ServerTransportPlugin()
+
     try:
-        bridge.init(["simple"])
+        bridge.init(["twkbl"])
     except EnvError, err:
         logging.warning("pyptlib could not bootstrap ('%s')." % str(err))
 
@@ -112,5 +113,7 @@ def main():
     reactor.run()
 
 if __name__ == '__main__':
+    BUFFER_SIZE = 4096
+    DIRNAME = os.path.dirname(os.path.realpath(__file__))
     main()
     

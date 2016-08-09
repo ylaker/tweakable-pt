@@ -22,9 +22,7 @@
 			"module": "Components.NetworkComponent",
 			"class": "NetworkComponent",
 			"dest_above": 2,
-			"dest_below": -1,
-			"host": "127.0.0.1",
-			"port": 9045
+			"dest_below": -1
 		}
 	]
 }

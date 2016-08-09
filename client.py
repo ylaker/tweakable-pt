@@ -4,6 +4,7 @@ import logging
 import threading
 import importlib
 import json
+import os
 
 from pyptlib.client import ClientTransportPlugin
 from pyptlib.config import EnvError
@@ -19,7 +20,7 @@ def launchPT(name):
     """
     Launch the Pluggable Transport
     """
-    if name != 'simple':
+    if name != 'twkbl':
         raise TransportLaunchException(\
             'Tried to launch unsupported transport %s' % name)
 
@@ -29,8 +30,7 @@ def launchPT(name):
 
     #Loading the config file
     try:
-        config = json.load(open(\
-            '/home/yoann/MscInfoSec-Project/tweakable_pt/Config/config_client.json'))
+        config = json.load(open(DIRNAME + '/config/config_client.json'))
     except Exception as e:
         logging.warning(str(e))
 
@@ -77,23 +77,21 @@ def launchPT(name):
 
 def main():
     logging.basicConfig(\
-        filename='/home/yoann/MscInfoSec-Project/tweakable_pt/client.log', \
+        filename=DIRNAME + '/log/tweakable_client.log', \
         filemode='w', \
         level=logging.DEBUG)
     logging.debug("test")
     
-    transports = ["simple"]
     client = ClientTransportPlugin()
-        
+
     #Try to init pyptlib pluggin for the client for each transport
-    for transport in transports:
-        try:
-            client.init(transport)
-        except EnvError, err:
-            logging.warning("pyptlib could not bootstrap ('%s')." % str(err))
+    try:
+        client.init(supported_transports = ["twkbl"])
+    except EnvError, err:
+        logging.warning("pyptlib could not bootstrap ('%s')." % str(err))
 
     #Try to launch each transport
-    for transport in transports:
+    for transport in client.getTransports():
         try:
             addrport = launchPT(transport)
             client.reportMethodSuccess(transport, "socks5", addrport, None)
@@ -106,4 +104,5 @@ def main():
     reactor.run()
 
 if __name__ == '__main__':
+    DIRNAME = os.path.dirname(os.path.realpath(__file__))
     main()
