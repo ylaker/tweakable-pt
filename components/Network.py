@@ -3,10 +3,10 @@ import threading
 
 from twisted.internet import reactor, protocol
 
-import Network.Downstream as Downstream
-import Network.Upstream as Upstream
+import Networking.Downstream as Downstream
+import Networking.Upstream as Upstream
 
-from BaseComponent import BasicComponent
+from Base import BasicComponent
 
 
 class NetworkComponent(BasicComponent):
@@ -114,22 +114,6 @@ class NetworkComponent(BasicComponent):
             self.connection.transport.write(outgoing_data)
 
         return True
-
-    #Method used to create the thread for a component
-    def run(self):
-        while True:
-            self.condition.acquire()
-            #Loop until it get events related to its component ID
-            while self.get_events():
-                #Wait to receive a notification for a change in the queue
-                self.condition.wait()
-            #Events received, processing
-            try:
-                self.process_events()
-            except Exception as e:
-                logging.warning(str(e))
-            #Release the underlying lock
-            self.condition.release()
 
 if __name__ == '__main__':
     pass

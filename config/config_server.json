@@ -3,7 +3,7 @@
 		{
 			"name": "Upstream",
 			"ID": 1,
-			"module": "components.NetworkComponent",
+			"module": "components.Network",
 			"class": "NetworkComponent",
 			"dest_above": -1,
 			"dest_below": 2
@@ -11,7 +11,7 @@
 		{
 			"name": "Dummy",
 			"ID": 2,
-			"module": "components.DummyComponent",
+			"module": "components.Dummy",
 			"class": "DummyComponent",
 			"dest_above": 1,
 			"dest_below": 3
@@ -19,7 +19,7 @@
 		{
 			"name": "Downstream",
 			"ID": 3,
-			"module": "components.NetworkComponent",
+			"module": "components.Network",
 			"class": "NetworkComponent",
 			"dest_above": 2,
 			"dest_below": -1

@@ -16,11 +16,16 @@ There is several prerequisities to be able to run this project, here is what mus
 * twisted
 * pytest
 
-### CLONNING THIS REPOSITORY
+### CONFIGURING THIS PT
 
 You can clone this project by running:
 ```
 $ git clone https://gitlab.com/MscProject-YLaker/tweakable-pt.git
+```
+
+Edit the config files inside
+```
+/path/to/the/dir/tweakable_pt/config
 ```
 
 ### CONFIGURING TOR

@@ -17,7 +17,7 @@ def test_code_present():
     """
     Try to import the code files
     """
-    import tweakable_pt.TweakableComponents.EventQueue
+    import tweakable_pt.EventQueue
     assert True
 
 @pytest.mark.event
@@ -25,7 +25,7 @@ def test_create_event():
     """
     Test the creation of an event
     """
-    from tweakable_pt.TweakableComponents.EventQueue import Event
+    from tweakable_pt.EventQueue import Event
 
     event = Event(1, 2, "control")
 
@@ -40,7 +40,7 @@ def test_fail_create_event():
     Test the exception raising when the input is malformed
     """
     from pytest import raises
-    from tweakable_pt.TweakableComponents.EventQueue import Event
+    from tweakable_pt.EventQueue import Event
 
     with raises(Exception) as excinfo:
         event = Event(1, 2, "error")
@@ -59,7 +59,7 @@ def test_set_payload():
     """
     Test to set the payload for data and control event
     """
-    from tweakable_pt.TweakableComponents.EventQueue import Event
+    from tweakable_pt.EventQueue import Event
 
     data_event = Event(1, 2, "data")
     control_event = Event(1, 2, "control")
@@ -68,7 +68,7 @@ def test_set_payload():
                     'stream_ID': 1, \
                     'timestamp': 1.0, \
                     'valid_for': 2, \
-                    'content': {}}
+                    'content': ""}
     control_payload =  {'dest_location': "local", \
                         'configuration': {}}
 
@@ -87,7 +87,7 @@ def test_fail_set_payload():
     set_payload method from Event
     """
     from pytest import raises
-    from tweakable_pt.TweakableComponents.EventQueue import Event
+    from tweakable_pt.EventQueue import Event
 
     data_event = Event(1, 2, "data")
     control_event = Event(1, 2, "control")
@@ -98,7 +98,7 @@ def test_fail_set_payload():
                                 'stream_ID': 1, \
                                 'timestamp': 1.0, \
                                 'valid_for': 2, \
-                                'content': {}})
+                                'content': ""})
     assert "Malformed input payload" in str(excinfo.value)
 
     with raises(Exception) as excinfo:
@@ -106,7 +106,7 @@ def test_fail_set_payload():
                                 'stream_ID': "error", \
                                 'timestamp': 1.0, \
                                 'valid_for': 2, \
-                                'content': {}})
+                                'content': ""})
     assert "Malformed input payload" in str(excinfo.value)
 
     with raises(Exception) as excinfo:
@@ -114,7 +114,7 @@ def test_fail_set_payload():
                                 'stream_ID': 1, \
                                 'timestamp': "error", \
                                 'valid_for': 2, \
-                                'content': {}})
+                                'content': ""})
     assert "Malformed input payload" in str(excinfo.value)
 
     with raises(Exception) as excinfo:
@@ -122,6 +122,14 @@ def test_fail_set_payload():
                                 'stream_ID': 1, \
                                 'timestamp': 1.0, \
                                 'valid_for': "error", \
+                                'content': ""})
+    assert "Malformed input payload" in str(excinfo.value)
+
+    with raises(Exception) as excinfo:
+        data_event.set_payload({'event_ID': 1, \
+                                'stream_ID': 1, \
+                                'timestamp': 1.0, \
+                                'valid_for': 2, \
                                 'content': {}})
     assert "Malformed input payload" in str(excinfo.value)
 
@@ -130,15 +138,7 @@ def test_fail_set_payload():
                                 'stream_ID': 1, \
                                 'timestamp': 1.0, \
                                 'valid_for': 2, \
-                                'content': "error"})
-    assert "Malformed input payload" in str(excinfo.value)
-
-    with raises(Exception) as excinfo:
-        data_event.set_payload({'event_ID': 1, \
-                                'stream_ID': 1, \
-                                'timestamp': 1.0, \
-                                'valid_for': 2, \
-                                'content': {}, \
+                                'content': "", \
                                 'error': "error"})
     assert "Malformed input payload" in str(excinfo.value)
 
@@ -164,9 +164,14 @@ def test_add_queue():
     """
     Test adding an event to the queue
     """
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+    import threading
 
-    q = EventQueue()
+    from tweakable_pt.EventQueue import EventQueue, Event
+
+    #Create the condition
+    condition = threading.Condition()
+
+    q = EventQueue(condition)
     event = Event(1, 2, "data")
 
     ans = q.add(event)
@@ -179,10 +184,14 @@ def test_get_queue():
     """
     Tests the retrieval of an event from the queue
     """
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+    import threading
 
-    q = EventQueue()
+    from tweakable_pt.EventQueue import EventQueue, Event
 
+    #Create the condition
+    condition = threading.Condition()
+
+    q = EventQueue(condition)
     event1 = Event(1, 2, "data")
     event2 = Event(1, 3, "control")
 
@@ -199,10 +208,15 @@ def test_fail_get_queue():
     """
     Tests the failure of the retrieval of an event from the queue
     """
-    from pytest import raises 
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+    import threading
 
-    q = EventQueue()
+    from pytest import raises 
+    from tweakable_pt.EventQueue import EventQueue, Event
+
+    #Create the condition
+    condition = threading.Condition()
+
+    q = EventQueue(condition)
 
     event1 = Event(1, 2, "data")
     event2 = Event(1, 3, "control")
@@ -220,9 +234,14 @@ def test_peek_queue():
     Tests the peek method of the queue which return 
     an event without removing it from the queue
     """
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+    import threading
 
-    q = EventQueue()
+    from tweakable_pt.EventQueue import EventQueue, Event
+
+    #Create the condition
+    condition = threading.Condition()
+
+    q = EventQueue(condition)
 
     event1 = Event(1, 2, "data")
     event2 = Event(1, 3, "control")
@@ -241,9 +260,14 @@ def test_preview_queue():
     Tests the preview method which hide the payload and return
     the queue with payloads replaced by "payload"
     """
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
+    import threading
 
-    q = EventQueue()
+    from tweakable_pt.EventQueue import EventQueue, Event
+
+    #Create the condition
+    condition = threading.Condition()
+
+    q = EventQueue(condition)
 
     event1 = Event(1, 2, "data")
     event2 = Event(1, 3, "control")

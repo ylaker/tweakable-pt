@@ -1,7 +1,7 @@
 import logging
 import threading
 
-from BaseComponent import BasicComponent
+from Base import BasicComponent
 
 class DummyComponent(BasicComponent):
     """

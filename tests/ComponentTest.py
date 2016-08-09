@@ -17,8 +17,8 @@ def test_code_present():
     """
     Try to import the code files
     """
-    import tweakable_pt.TweakableComponents.EventQueue
-    import tweakable_pt.TweakableComponents.BaseComponent
+    import tweakable_pt.EventQueue
+    import tweakable_pt.components.Base
     assert True
 
 @pytest.mark.component
@@ -29,8 +29,8 @@ def test_init_component():
     import sys
     import threading
 
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
-    from tweakable_pt.TweakableComponents.BaseComponent import BasicComponent
+    from tweakable_pt.EventQueue import EventQueue, Event
+    from tweakable_pt.components.Base import BasicComponent
     
     #Create the condition
     condition = threading.Condition()
@@ -74,10 +74,10 @@ def test_network_component_downstream():
 
     from twisted.internet import reactor
 
-    import tweakable_pt.Connectivity.Downstream as Downstream
+    import tweakable_pt.components.Networking.Downstream as Downstream
 
-    from tweakable_pt.TweakableComponents.EventQueue import EventQueue, Event
-    from tweakable_pt.TweakableComponents.NetworkComponent import NetworkComponent
+    from tweakable_pt.EventQueue import EventQueue, Event
+    from tweakable_pt.components.Network import NetworkComponent
 
     #Create the condition
     condition = threading.Condition()
@@ -89,8 +89,19 @@ def test_network_component_downstream():
     event.set_payload({'event_ID': 1, 'stream_ID': 1, 'timestamp': 1.0, \
                         'valid_for': 1, 'content': content})
 
+    config = {\
+                "name": "Downstream",\
+                "ID": 2,\
+                "module": "components.Network",\
+                "class": "NetworkComponent",\
+                "dest_above": 1,\
+                "dest_below": -1,\
+                "host": unicode("127.0.0.1"),\
+                "port": 9151\
+            }
+
     #Create the component
-    component = NetworkComponent(2, 1, queue)
+    component = NetworkComponent(config, "client", queue)
 
     down_fact = Downstream.DownstreamFactory(component)
     reactor.connectTCP('127.0.0.1', 28000, down_fact)
@@ -121,3 +132,5 @@ def test_network_component_downstream():
 
     for event in queue.preview().values():
         assert event == out_event
+
+ 
