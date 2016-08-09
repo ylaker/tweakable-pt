@@ -7,7 +7,21 @@ https://gitweb.torproject.org/sjm217/torspec.git/tree/pt-components.txt?h=pt-com
 
 ## INSTALLATION INSTRUCTIONS
 
+### PREREQUISITIES
+
+There is several prerequisities to be able to run this project, here is what must be installed:
+* tor
+* python
+* pyptlib
+* twisted
+* pytest
+
 ### CLONNING THIS REPOSITORY
+
+You can clone this project by running:
+```
+$ git clone https://gitlab.com/MscProject-YLaker/tweakable-pt.git
+```
 
 ### CONFIGURING TOR
 Config file for tor on the client: /etc/tor/torrc-client
@@ -54,9 +68,14 @@ ServerTransportPlugin simple exec /home/yoann/MscInfoSec-Project/tweakable_pt/se
 
 ### RUNNING TOR
 
-To run tor on the client : "tor -f /etc/tor/torrc-client"
-
-To run tor on the server : "tor -f /etc/tor/torrc-server"
+To run tor on the client :
+```
+$ tor -f /etc/tor/torrc-client
+```
+To run tor on the server : 
+```
+$ tor -f /etc/tor/torrc-server
+```
 
 Then ,on the client, connect an application to the tor listenning socks proxy on the port: 
 
