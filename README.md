@@ -1,6 +1,6 @@
-## DESCRIPTION
+# DESCRIPTION
 
-## INSTALLATION INSTRUCTIONS
+# INSTALLATION INSTRUCTIONS
 
 Config file for tor on the client: /etc/tor/torrc-client
 
