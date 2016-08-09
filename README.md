@@ -1,4 +1,4 @@
-# TITLE
+# TWEAKABLE COMPONENT ARCHITECTURE
 
 ## DESCRIPTION
 This is an implementation of a modular architecture for Tor's Pluggable Transport based on the specification made by the tor project.
