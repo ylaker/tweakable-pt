@@ -182,6 +182,8 @@ class Obfs2Component(BasicComponent):
             else:
                 self.initiator_seed = data[:SEED_LENGTH]
 
+            logging.debug(len(data))
+
             data = data[SEED_LENGTH:]
 
             # Now that we got the other seed, let's set up our crypto.
@@ -195,19 +197,23 @@ class Obfs2Component(BasicComponent):
             magic = srlz.ntohl(self.recv_padding_crypto.crypt(data[:4]))
             padding_length = srlz.ntohl(self.recv_padding_crypto.crypt(data[4:8]))
 
+            data = data[8:]
+
             logging.debug("%s: Got %d bytes of handshake data (padding_length: %d, magic: %s)" % \
                           (logging_prefix, len(data), padding_length, hex(magic)))
 
             if magic != MAGIC_VALUE:
-                raise base.PluggableTransportError("obfs2: Corrupted magic value '%s'" % hex(magic))
+                logging.warning("obfs2: Corrupted magic value '%s'" % hex(magic))
+                raise Exception
             if padding_length > MAX_PADDING:
-                raise base.PluggableTransportError("obfs2: Too big padding length '%s'" % padding_length)
+                logging.warning("obfs2: Too big padding length '%s'" % padding_length)
+                raise Exception
 
             self.padding_left_to_read = padding_length
             self.state = ST_WAIT_FOR_PADDING
 
         while self.padding_left_to_read:
-            if not data: return
+            #if not data: return
 
             n_to_drain = self.padding_left_to_read
             if (self.padding_left_to_read > len(data)):
@@ -286,6 +292,10 @@ class Obfs2Component(BasicComponent):
             else:
                 raise Exception("Received event from unknown endpoint")
 
+            if not content:
+                return True
+
+            logging.debug(len(content))
             payload = self.create_payload(content)
             outgoing_event = self.create_event(incomming_event.event_type, \
                                             endpoint, payload)

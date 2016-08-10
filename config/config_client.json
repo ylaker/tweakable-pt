@@ -8,30 +8,22 @@
 			"dest_above": -1,
 			"dest_below": 2,
 			"host": "127.0.0.1",
-			"port": 9152
+			"port": 9151
 		},
 		{
-			"name": "Dummy",
+			"name": "Obfs2",
 			"ID": 2,
-			"module": "components.Dummy",
-			"class": "DummyComponent",
+			"module": "components.Obfs2",
+			"class": "Obfs2Component",
 			"dest_above": 1,
 			"dest_below": 3
 		},
 		{
-			"name": "Obfs2",
-			"ID": 3,
-			"module": "components.Obfs2",
-			"class": "Obfs2Component",
-			"dest_above": 2,
-			"dest_below": 4
-		},
-		{
 			"name": "Downstream",
-			"ID": 4,
+			"ID": 3,
 			"module": "components.Network",
 			"class": "NetworkComponent",
-			"dest_above": 3,
+			"dest_above": 2,
 			"dest_below": -1,
 			"host": "127.0.0.1",
 			"port": 9045

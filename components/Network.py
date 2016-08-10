@@ -108,6 +108,7 @@ class NetworkComponent(BasicComponent):
             #Retrieve the outgoing data
             outgoing_data = incomming_event.payload['content']
             #Send the content towards the network
+            logging.debug("Writting data to connection %s bytes" % len(outgoing_data))
             self.connection.transport.write(outgoing_data)
 
         return True
