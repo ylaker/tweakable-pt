@@ -29,6 +29,16 @@ class BasicComponent(Thread):
         #Init the parent class
         Thread.__init__(self)
 
+    def create_payload(self, content):
+        payload = {}
+        payload['event_ID'] = 1
+        payload['stream_ID'] = 1
+        payload['timestamp'] = 1.0
+        payload['valid_for'] = 1
+        payload['content'] = content
+
+        return payload
+
     #Method to create an event
     def create_event(self, event_type, endpoint, payload = "payload"):
         if not (endpoint == self.dest_above or endpoint == self.dest_below):

@@ -70,12 +70,9 @@ class NetworkComponent(BasicComponent):
         """
         Transform data into payload and send an event to the queue
         """
-        payload = {}
-        payload['event_ID'] = 1
-        payload['stream_ID'] = 1
-        payload['timestamp'] = 1.0
-        payload['valid_for'] = 1
-        payload['content'] = data
+
+        logging.debug("Received data from connection %s bytes" % len(data))
+        payload = self.create_payload(data)
 
         if self.dest_above != -1:
             endpoint = self.dest_above

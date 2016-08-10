@@ -9,10 +9,10 @@
 			"dest_below": 2
 		},
 		{
-			"name": "Dummy",
+			"name": "Obfs2",
 			"ID": 2,
-			"module": "components.Dummy",
-			"class": "DummyComponent",
+			"module": "components.Obfs2",
+			"class": "Obfs2Component",
 			"dest_above": 1,
 			"dest_below": 3
 		},
