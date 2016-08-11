@@ -9,7 +9,6 @@ import sys
 import Obfsproxy.aes as aes
 import Obfsproxy.serialize as srlz
 import Obfsproxy.rand as rand
-import Obfsproxy.Obfs2Resource as obfs2
 
 from Base import BasicComponent
 
@@ -293,7 +292,6 @@ class Obfs2Component(BasicComponent):
             if not content:
                 return True
 
-            logging.debug(len(content))
             payload = self.create_payload(content)
             outgoing_event = self.create_event(incomming_event.event_type, \
                                             endpoint, payload)

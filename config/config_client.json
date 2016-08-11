@@ -11,12 +11,20 @@
 			"port": 9151
 		},
 		{
-			"name": "Bananaphone",
+			"name": "Obfs2",
 			"ID": 2,
+			"module": "components.Obfs2",
+			"class": "Obfs2Component",
+			"dest_above": 1,
+			"dest_below": 3
+		},
+		{
+			"name": "Bananaphone",
+			"ID": 3,
 			"module": "components.BananaPhone",
 			"class": "BananaphoneComponent",
-			"dest_above": 1,
-			"dest_below": 3,
+			"dest_above": 2,
+			"dest_below": 4,
 			"config":{
 				"modelName": "markov",
 				"encodingSpec": "words,sha1,8",
@@ -26,10 +34,10 @@
 		},
 		{
 			"name": "Downstream",
-			"ID": 3,
+			"ID": 4,
 			"module": "components.Network",
 			"class": "NetworkComponent",
-			"dest_above": 2,
+			"dest_above": 3,
 			"dest_below": -1,
 			"host": "127.0.0.1",
 			"port": 9045
