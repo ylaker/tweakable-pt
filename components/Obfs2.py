@@ -6,8 +6,6 @@ import hashlib
 import argparse
 import sys
 
-from StringIO import StringIO
-
 import Obfsproxy.aes as aes
 import Obfsproxy.serialize as srlz
 import Obfsproxy.rand as rand

@@ -11,12 +11,18 @@
 			"port": 9151
 		},
 		{
-			"name": "Obfs2",
+			"name": "Bananaphone",
 			"ID": 2,
-			"module": "components.Obfs2",
-			"class": "Obfs2Component",
+			"module": "components.BananaPhone",
+			"class": "BananaphoneComponent",
 			"dest_above": 1,
-			"dest_below": 3
+			"dest_below": 3,
+			"config":{
+				"modelName": "markov",
+				"encodingSpec": "words,sha1,8",
+				"corpus": "/usr/share/dict/words",
+				"order": 1
+			}
 		},
 		{
 			"name": "Downstream",

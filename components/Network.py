@@ -19,7 +19,7 @@ class NetworkComponent(BasicComponent):
         if not (config['name'] == "Upstream" or config['name'] == "Downstream") or \
                 not isinstance(config['host'], unicode) or \
                 not isinstance(config['port'], int):
-            raise Exception("Malformed config")
+            raise Exception("Network: Malformed config")
 
         self.connection = None
         self.conn_condition = threading.Condition()
@@ -36,6 +36,7 @@ class NetworkComponent(BasicComponent):
             self.setup_downstream()
         
     def setup_upstream(self):
+        self.name = "Upstream"
         if self.mode == "client":
             try:
                 up_fact = Upstream.UpstreamClientFactory(self)
@@ -51,6 +52,7 @@ class NetworkComponent(BasicComponent):
                 logging.warning("UpstreamServer: %s" %e)
 
     def setup_downstream(self):
+        self.name = "Downstream"
         if self.mode == "client":
             try:
                 down_fact = Downstream.DownstreamFactory(self)
@@ -71,7 +73,7 @@ class NetworkComponent(BasicComponent):
         Transform data into payload and send an event to the queue
         """
 
-        logging.debug("Received data from connection %s bytes" % len(data))
+        logging.debug("%s : Received data from connection %s bytes" % (self.name, len(data)))
         payload = self.create_payload(data)
 
         if self.dest_above != -1:
@@ -108,7 +110,7 @@ class NetworkComponent(BasicComponent):
             #Retrieve the outgoing data
             outgoing_data = incomming_event.payload['content']
             #Send the content towards the network
-            logging.debug("Writting data to connection %s bytes" % len(outgoing_data))
+            logging.debug("%s : Writting data to connection %s bytes" % (self.name,len(outgoing_data)))
             self.connection.transport.write(outgoing_data)
 
         return True
