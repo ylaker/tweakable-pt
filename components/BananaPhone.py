@@ -84,6 +84,7 @@ class BananaphoneComponent(BasicComponent):
             if incomming_event.source_ID == self.dest_below:
                 endpoint = self.dest_above
                 try:
+                    logging.debug("Bananaphone: decoding %s bytes" % len(incomming_event.payload['content']))
                     self.decoder.send(incomming_event.payload['content'])
                 except Exception, e:
                     logging.warning("Bananaphone: %s" % e)
@@ -91,6 +92,7 @@ class BananaphoneComponent(BasicComponent):
             elif incomming_event.source_ID == self.dest_above:
                 endpoint = self.dest_below
                 try:
+                    logging.debug("Bananaphone: encoding %s bytes" % len(incomming_event.payload['content']))
                     self.encoder.send(incomming_event.payload['content'])
                 except Exception, e:
                     logging.warning("Bananaphone: %s" % e)
@@ -99,8 +101,10 @@ class BananaphoneComponent(BasicComponent):
                 raise Exception("Received event from unknown endpoint")
 
             content = self.gatherer
+            logging.debug("Bananaphone: sending %s bytes" % len(content))
             self.gatherer = ""
             payload = self.create_payload(content)
+
             outgoing_event = self.create_event(incomming_event.event_type, \
                                             endpoint, payload)
             
