@@ -6,9 +6,11 @@
 			"module": "components.Network",
 			"class": "NetworkComponent",
 			"dest_above": -1,
-			"dest_below": 2
+			"dest_below": 2,
+			"host": "127.0.0.1",
+			"port": 9151
 		},
-				{
+		{
 			"name": "Obfs2",
 			"ID": 2,
 			"module": "components.Obfs2",
@@ -24,10 +26,10 @@
 			"dest_above": 2,
 			"dest_below": 4,
 			"config":{
-				"modelName":"markov",
-				"encodingSpec":"words,sha1,8",
-				"corpus":"/usr/share/dict/words",
-				"order":1
+				"modelName": "markov",
+				"encodingSpec": "words,sha1,8",
+				"corpus": "/usr/share/dict/words",
+				"order": 1
 			}
 		},
 		{
@@ -36,7 +38,10 @@
 			"module": "components.Network",
 			"class": "NetworkComponent",
 			"dest_above": 3,
-			"dest_below": -1
+			"dest_below": -1,
+			"host": "127.0.0.1",
+			"port": 9045
 		}
 	]
 }
+
