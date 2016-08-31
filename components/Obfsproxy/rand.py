@@ -1,3 +1,8 @@
+""" 
+From Obfsproxy repo:
+https://github.com/david415/obfsproxy/blob/david-bananaphone/obfsproxy/common/aes.py
+"""
+
 import os
 
 def random_bytes(n):

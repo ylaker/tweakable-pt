@@ -12,6 +12,11 @@ import Obfsproxy.rand as rand
 
 from Base import BasicComponent
 
+""" 
+From Obfsproxy repo:
+https://github.com/david415/obfsproxy/blob/david-bananaphone/obfsproxy/common/aes.py
+"""
+
 MAGIC_VALUE = 0x2BF5CA7E
 SEED_LENGTH = 16
 MAX_PADDING = 8192
