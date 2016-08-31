@@ -1,6 +1,6 @@
 """ 
 From Obfsproxy repo:
-https://github.com/david415/obfsproxy/blob/david-bananaphone/obfsproxy/common/aes.py
+https://github.com/david415/obfsproxy/blob/david-bananaphone/obfsproxy/common/rand.py
 """
 
 import os

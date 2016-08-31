@@ -9,7 +9,7 @@ import logging
 """
 SOCKS5 Server:
 
-This is a SOCKS5 server from Obfproxy Pluggable Transport for TOR. 
+This is a SOCKS5 server adapted from Obfproxy Pluggable Transport for TOR. 
 It is compliant with RFC 1928 and RFC 1929, with the following limitations:
 
  * GSSAPI Autentication is not supported

@@ -6,6 +6,11 @@ from Base import BasicComponent
 
 from Bananaphone.BananaphoneMethods import rh_build_encoder_factory, rh_decoder
 
+""" 
+Adapted to fit the architecture from Obfsproxy repo:
+https://github.com/david415/obfsproxy/blob/david-bananaphone/obfsproxy/transport/bananaphone_transport.py
+"""
+
 class BananaphoneComponent(BasicComponent):
     """
     BananaphoneComponent implements the Bananaphone protocol
